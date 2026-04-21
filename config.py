@@ -3,6 +3,9 @@
 #  แก้ไขค่าต่างๆ ในไฟล์นี้ตามที่ต้องการ
 # ============================================================
 
+from datetime import datetime
+_today = datetime.now().strftime("%Y%m%d")
+
 # URL ของหน้าเว็บที่ต้องการเปิด
 URL = "https://stage.fundconnext.com/"
 
@@ -50,7 +53,7 @@ WAIT_AFTER_CLICK = 3
 POST_LOGIN_STEPS = [
     {"action": "navigate", "url": "https://stage.fundconnext.com/amcUpload/fundProfileUpload"},
     {"action": "wait",     "seconds": 3},
-    {"action": "upload",   "selector": {"by": "id", "value": "fund-rules-v4FileInput"}, "file": "C:\\Users\\click\\Desktop\\20260421_LHFUND_FUND_RULES.txt"},
+    {"action": "upload",   "selector": {"by": "id", "value": "fund-rules-v4FileInput"}, "file": rf"C:\Users\click\Desktop\{_today}_LHFUND_FUND_RULES.txt"},
     {"action": "wait",     "seconds": 2},
     {"action": "click",    "selector": {"by": "id", "value": "fund-rules-v4UploadButton"}},
 ]

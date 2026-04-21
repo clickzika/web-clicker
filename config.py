@@ -45,22 +45,13 @@ WAIT_AFTER_CLICK = 3
 #   assert_url  — ตรวจสอบว่า URL ปัจจุบันมีข้อความที่กำหนด (ต้องมี "contains")
 #   js          — รัน JavaScript ผ่าน driver.execute_script() (ต้องมี "script")
 #
-# ตัวอย่าง:
-# POST_LOGIN_STEPS = [
-    {"action": "navigate", "url": "https://stage.fundconnext.com/amcUpload/fundProfileUpload"},
-    {"action": "wait",     "seconds": 10},
-    # ส่งไฟล์ผ่าน send_keys() เพื่อให้ Angular FormControl รับรู้และ enable ปุ่ม SUBMIT
-    {"action": "upload",   "selector": {"by": "id", "value": "fund-rules-v4TextInput"}, "file": "D:/Work/web-clicker/requirements.txt"},
-    {"action": "click",    "selector": {"by": "text", "value": "OK"}},
-    {"action": "wait",     "seconds": 2},
-    {"action": "click",    "selector": {"by": "id", "value": "fund-rules-v4UploadButton"}},
-]
+
 
 POST_LOGIN_STEPS = [
     {"action": "navigate", "url": "https://stage.fundconnext.com/amcUpload/fundProfileUpload"},
-    {"action": "wait",     "seconds": 10},
+    {"action": "wait",     "seconds": 3},
     # ส่งไฟล์ผ่าน send_keys() เพื่อให้ Angular FormControl รับรู้และ enable ปุ่ม SUBMIT
-    {"action": "upload",   "selector": {"by": "id", "value": "fund-rules-v4TextInput"}, "file": "D:/Work/web-clicker/requirements.txt"},
+    {"action": "upload",   "selector": {"by": "css", "value": "input[type='file']"}, "file": "C:\\Users\\click\\Desktop\\20260421_LHFUND_FUND_RULES.txt"},
     {"action": "click",    "selector": {"by": "text", "value": "OK"}},
     {"action": "wait",     "seconds": 2},
     {"action": "click",    "selector": {"by": "id", "value": "fund-rules-v4UploadButton"}},

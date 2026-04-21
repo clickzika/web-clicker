@@ -23,6 +23,9 @@ PASSWORD_SELECTOR = {"by": "css", "value": "input[name='password']"}
 # CSS selector ของปุ่ม Login
 BUTTON_SELECTOR = {"by": "css", "value": "button[type='submit']"}
 
+# โฟลเดอร์ที่เก็บไฟล์สำหรับอัพโหลด
+UPLOAD_DIR = r"C:\Users\click\Desktop"
+
 # -------- ตั้งค่า Browser --------
 
 # True = ไม่แสดงหน้าต่าง browser (headless)
@@ -53,7 +56,7 @@ WAIT_AFTER_CLICK = 3
 POST_LOGIN_STEPS = [
     {"action": "navigate", "url": "https://stage.fundconnext.com/amcUpload/fundProfileUpload"},
     {"action": "wait",     "seconds": 3},
-    {"action": "upload",   "selector": {"by": "id", "value": "fund-rules-v4FileInput"}, "file": rf"C:\Users\click\Desktop\{_today}_LHFUND_FUND_RULES.txt"},
+    {"action": "upload",   "selector": {"by": "id", "value": "fund-rules-v4FileInput"}, "file": rf"{UPLOAD_DIR}\{_today}_LHFUND_FUND_RULES.txt"},
     {"action": "wait",     "seconds": 2},
     {"action": "click",    "selector": {"by": "id", "value": "fund-rules-v4UploadButton"}},
 ]

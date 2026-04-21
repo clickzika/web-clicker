@@ -256,7 +256,7 @@ def run():
         # Step 4: Click login button
         print(f"\n[4/4] Clicking login button")
         submit_btn = wait_and_find(driver, config.BUTTON_SELECTOR, config.WAIT_TIMEOUT)
-        print(f"      Found: <{submit_btn.tag_name}> text='{submit_btn.text.strip()}'")
+        print(f"      Found button: {submit_btn.text.strip()}")
         submit_btn.click()
         print("      Clicked ✓")
 

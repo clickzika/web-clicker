@@ -58,4 +58,16 @@ WAIT_AFTER_CLICK = 3
 #     {"action": "js", "script": "var el=document.getElementById('fund-rules-v4TextInput'); el.removeAttribute('disabled'); el.value='/path/to/file.xlsx'; el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true}));"},
 # ]
 
-POST_LOGIN_STEPS = []
+POST_LOGIN_STEPS = [
+{"action": "navigate",   "url": "https://stage.fundconnext.com/amcUpload/fundProfileUpload"},
+{"action": "wait",       "seconds": 10},
+{"action": "js", "script": """
+          var el = document.getElementById('fund-rules-v4TextInput');
+          el.removeAttribute('disabled');                                                                                                                                                                          
+          el.value = 'D:/Work/web-clicker/requirements.txt';
+          el.dispatchEvent(new Event('input',  {bubbles: true}));                                                                                                                                                  
+          el.dispatchEvent(new Event('change', {bubbles: true}));
+      """},                                                                                                                                                                                                        
+      # Then click OK                       
+      {"action": "click", "selector": {"by": "text", "value": "OK"}}
+]

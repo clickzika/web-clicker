@@ -130,10 +130,17 @@ def run_steps(driver: webdriver.Chrome, steps: list, timeout: int):
                 sys.exit(1)
             print(f"        URL มี '{contains}' ✓")
 
+        elif action == "js":
+            script = step["script"]
+            result = driver.execute_script(script)
+            print(f"        รัน JS แล้ว ✓")
+            if result is not None:
+                print(f"        ผลลัพธ์: {result}")
+
         else:
             raise ValueError(
                 f"ไม่รู้จัก action='{action}'. "
-                f"รองรับ: click, type, navigate, wait, screenshot, assert_url"
+                f"รองรับ: click, type, navigate, wait, screenshot, assert_url, js"
             )
 
 

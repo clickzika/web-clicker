@@ -43,6 +43,7 @@ WAIT_AFTER_CLICK = 3
 #   wait        — หน่วงเวลา (ต้องมี "seconds")
 #   screenshot  — บันทึกภาพหน้าจอ (ต้องมี "filename")
 #   assert_url  — ตรวจสอบว่า URL ปัจจุบันมีข้อความที่กำหนด (ต้องมี "contains")
+#   js          — รัน JavaScript ผ่าน driver.execute_script() (ต้องมี "script")
 #
 # ตัวอย่าง:
 # POST_LOGIN_STEPS = [
@@ -53,6 +54,8 @@ WAIT_AFTER_CLICK = 3
 #     {"action": "wait",       "seconds": 1},
 #     {"action": "type",       "selector": {"by": "id", "value": "search"}, "text": "hello"},
 #     {"action": "navigate",   "url": "https://stage.fundconnext.com/settings"},
+#     # ตัวอย่าง: bypass Angular disabled input + trigger change detection
+#     {"action": "js", "script": "var el=document.getElementById('fund-rules-v4TextInput'); el.removeAttribute('disabled'); el.value='/path/to/file.xlsx'; el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true}));"},
 # ]
 
 POST_LOGIN_STEPS = []

@@ -138,18 +138,25 @@ def run_steps(driver: webdriver.Chrome, steps: list, timeout: int):
                 print(f"        ผลลัพธ์: {result}")
 
         elif action == "upload":
-            locator = resolve_locator(step["selector"])
-            el = WebDriverWait(driver, timeout).until(
-                EC.presence_of_element_located(locator)
-            )
-            # file inputs are typically hidden — unhide before send_keys
-            driver.execute_script(
-                "arguments[0].style.display='block';"
-                "arguments[0].style.visibility='visible';"
-                "arguments[0].style.opacity='1';",
-                el,
-            )
-            el.send_keys(step["file"])
+            # CDP bypasses interactability checks on hidden file inputs
+            # and still fires the change event so Angular picks it up
+            by_key = step["selector"]["by"].lower()
+            val = step["selector"]["value"]
+            if by_key == "id":
+                js_expr = f"document.getElementById('{val}')"
+            elif by_key == "css":
+                js_expr = f"document.querySelector('{val}')"
+            elif by_key == "name":
+                js_expr = f"document.querySelector('[name=\"{val}\"]')"
+            else:
+                js_expr = f"document.querySelector('[{by_key}=\"{val}\"]')"
+            result = driver.execute_cdp_cmd("Runtime.evaluate", {"expression": js_expr})
+            obj_id = result["result"]["objectId"]
+            node = driver.execute_cdp_cmd("DOM.requestNode", {"objectId": obj_id})
+            driver.execute_cdp_cmd("DOM.setFileInputFiles", {
+                "files": [step["file"]],
+                "nodeId": node["nodeId"],
+            })
             print(f"        ส่งไฟล์แล้ว: {step['file']} ✓")
 
         else:

@@ -138,7 +138,17 @@ def run_steps(driver: webdriver.Chrome, steps: list, timeout: int):
                 print(f"        ผลลัพธ์: {result}")
 
         elif action == "upload":
-            el = wait_visible(driver, step["selector"], timeout)
+            locator = resolve_locator(step["selector"])
+            el = WebDriverWait(driver, timeout).until(
+                EC.presence_of_element_located(locator)
+            )
+            # file inputs are typically hidden — unhide before send_keys
+            driver.execute_script(
+                "arguments[0].style.display='block';"
+                "arguments[0].style.visibility='visible';"
+                "arguments[0].style.opacity='1';",
+                el,
+            )
             el.send_keys(step["file"])
             print(f"        ส่งไฟล์แล้ว: {step['file']} ✓")
 

@@ -68,6 +68,9 @@ POST_LOGIN_STEPS = [
           el.dispatchEvent(new Event('input',  {bubbles: true}));                                                                                                                                                  
           el.dispatchEvent(new Event('change', {bubbles: true}));
       """},                                                                                                                                                                                                        
-      # Then click OK                       
-      {"action": "click", "selector": {"by": "text", "value": "OK"}}
+      # Then click OK
+      {"action": "click", "selector": {"by": "text", "value": "OK"}},
+      {"action": "wait", "seconds": 2},
+      # Force-enable disabled SUBMIT button and click it
+      {"action": "js", "script": "var btn = document.getElementById('fund-rules-v4UploadButton'); btn.removeAttribute('disabled'); btn.click();"},
 ]

@@ -82,6 +82,61 @@ def wait_visible(driver: webdriver.Chrome, selector: dict, timeout: int):
     )
 
 
+def run_steps(driver: webdriver.Chrome, steps: list, timeout: int):
+    """รัน POST_LOGIN_STEPS ตามลำดับหลัง login สำเร็จ"""
+    if not steps:
+        return
+
+    print(f"\n[Post-Login] รัน {len(steps)} ขั้นตอน")
+    for i, step in enumerate(steps, 1):
+        action = step.get("action", "").lower()
+        print(f"\n  [{i}/{len(steps)}] action: {action}")
+
+        if action == "click":
+            el = wait_and_find(driver, step["selector"], timeout)
+            print(f"        พบ element: <{el.tag_name}> text='{el.text.strip()}'")
+            el.click()
+            print("        คลิกแล้ว ✓")
+
+        elif action == "type":
+            el = wait_visible(driver, step["selector"], timeout)
+            el.clear()
+            el.send_keys(step["text"])
+            print(f"        พิมพ์แล้ว: {step['text']}")
+
+        elif action == "navigate":
+            url = step["url"]
+            driver.get(url)
+            print(f"        เปิด: {url}")
+            print(f"        ชื่อหน้า: {driver.title}")
+
+        elif action == "wait":
+            secs = step["seconds"]
+            print(f"        รอ {secs} วินาที...")
+            time.sleep(secs)
+
+        elif action == "screenshot":
+            filename = step["filename"]
+            driver.save_screenshot(filename)
+            print(f"        บันทึกภาพ: {filename} ✓")
+
+        elif action == "assert_url":
+            contains = step["contains"]
+            current = driver.current_url
+            if contains not in current:
+                print(f"        [ERROR] assert_url ล้มเหลว")
+                print(f"                คาดว่ามี: '{contains}'")
+                print(f"                URL ปัจจุบัน: {current}")
+                sys.exit(1)
+            print(f"        URL มี '{contains}' ✓")
+
+        else:
+            raise ValueError(
+                f"ไม่รู้จัก action='{action}'. "
+                f"รองรับ: click, type, navigate, wait, screenshot, assert_url"
+            )
+
+
 def run():
     print("=" * 50)
     print("  Web Clicker — Login")
@@ -129,6 +184,10 @@ def run():
 
         # ── รอผลลัพธ์ ─────────────────────────────────────────
         time.sleep(config.WAIT_AFTER_CLICK)
+
+        # ── Post-Login Steps ──────────────────────────────────
+        run_steps(driver, config.POST_LOGIN_STEPS, config.WAIT_TIMEOUT)
+
         print(f"\n[เสร็จสิ้น]")
         print(f"  URL ปัจจุบัน: {driver.current_url}")
         print(f"  ชื่อหน้า    : {driver.title}")

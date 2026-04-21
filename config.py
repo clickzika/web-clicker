@@ -44,14 +44,10 @@ WAIT_AFTER_CLICK = 3
 _UPLOADS = [
     ("LHFUND_FUND_RULES",            "fund-rules-v4FileInput",            "fund-rules-v4UploadButton"),
     ("LHFUND_FUNDMAPPING",           "fund-mapping-v1FileInput",          "fund-mapping-v1UploadButton"),
-    ("LHFUND_FUND_SWITCHING_V1",     "fund-switching-matrix-v1FileInput", "fund-switching-matrix-v1UploadButton"),
-    ("LHFUND_FUND_SWITCHING_V2",     "fund-switching-matrix-v2FileInput", "fund-switching-matrix-v2UploadButton"),
-    ("LHFUND_FUND_CALENDAR",         "fund-calendar-v1FileInput",         "fund-calendar-v1UploadButton"),
-    ("LHFUND_TRADE_CALENDAR",        "trade-calendar-v2FileInput",        "trade-calendar-v2UploadButton"),
-    ("LHFUND_FUND_FEE",              "fund-feeFileInput",                 "fund-feeUploadButton"),
-    # ("LHFUND_FILE8",               "file8FileInput",                    "file8UploadButton"),
-    # ("LHFUND_FILE9",               "file9FileInput",                    "file9UploadButton"),
-    # ("LHFUND_FILE10",              "file10FileInput",                   "file10UploadButton"),
+    ("LHFUND_SWITCHING_MATRIX",      "fund-switching-matrix-v2TextInput", "fund-switching-matrix-v2UploadButton"),
+    ("LHFUND_FUND_CALENDAR",         "fund-calendar-v1TextInput",         "fund-calendar-v1UploadButton"),
+    ("LHFUND_TRADE_CALENDAR",        "trade-calendar-v2TextInput",        "trade-calendar-v2ClearButton"),
+    ("LHFUND_FUND_FEE",              "fund-feeTextInput",                 "fund-feeUploadButton"),
 ]
 
 _groups = []
@@ -62,6 +58,7 @@ for _fname, _finput, _fbtn in _UPLOADS:
                                  "file": rf"{UPLOAD_DIR}\{_today}_{_fname}.txt"},
         {"action": "wait",       "seconds": 2},
         {"action": "click",      "selector": {"by": "id", "value": _fbtn}},
+        {"action": "wait",       "seconds": 5},
     ]
 
 # -------- Post-Login Steps --------

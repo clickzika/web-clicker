@@ -50,7 +50,9 @@ WAIT_AFTER_CLICK = 3
 POST_LOGIN_STEPS = [
     {"action": "navigate", "url": "https://stage.fundconnext.com/amcUpload/fundProfileUpload"},
     {"action": "wait",     "seconds": 3},
-    # ส่งไฟล์ผ่าน send_keys() เพื่อให้ Angular FormControl รับรู้และ enable ปุ่ม SUBMIT
+    # วินิจฉัย: แสดง input ทั้งหมดที่มีในหน้า
+    {"action": "js", "script": "return Array.from(document.querySelectorAll('input')).map(el => el.id + '|' + el.type + '|' + el.className).join('\\n');"},
+    # ส่งไฟล์ผ่าน CDP DOM.setFileInputFiles
     {"action": "upload",   "selector": {"by": "css", "value": "input[type='file']"}, "file": "C:\\Users\\click\\Desktop\\20260421_LHFUND_FUND_RULES.txt"},
     {"action": "click",    "selector": {"by": "text", "value": "OK"}},
     {"action": "wait",     "seconds": 2},

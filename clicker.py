@@ -138,24 +138,27 @@ def run_steps(driver: webdriver.Chrome, steps: list, timeout: int):
                 print(f"        ผลลัพธ์: {result}")
 
         elif action == "upload":
-            # CDP bypasses interactability checks on hidden file inputs
-            # and still fires the change event so Angular picks it up
             by_key = step["selector"]["by"].lower()
             val = step["selector"]["value"]
             if by_key == "id":
-                js_expr = f"document.getElementById('{val}')"
+                css_sel = f"#{val}"
             elif by_key == "css":
-                js_expr = f"document.querySelector('{val}')"
+                css_sel = val
             elif by_key == "name":
-                js_expr = f"document.querySelector('[name=\"{val}\"]')"
+                css_sel = f"[name='{val}']"
             else:
-                js_expr = f"document.querySelector('[{by_key}=\"{val}\"]')"
-            result = driver.execute_cdp_cmd("Runtime.evaluate", {"expression": js_expr})
-            obj_id = result["result"]["objectId"]
-            # use objectId directly — nodeId goes stale when Angular re-renders
+                css_sel = val
+            doc = driver.execute_cdp_cmd("DOM.getDocument", {})
+            result = driver.execute_cdp_cmd("DOM.querySelector", {
+                "nodeId": doc["root"]["nodeId"],
+                "selector": css_sel,
+            })
+            node_id = result["nodeId"]
+            if node_id == 0:
+                raise ValueError(f"upload: ไม่พบ element '{css_sel}' ใน DOM")
             driver.execute_cdp_cmd("DOM.setFileInputFiles", {
                 "files": [step["file"]],
-                "objectId": obj_id,
+                "nodeId": node_id,
             })
             print(f"        ส่งไฟล์แล้ว: {step['file']} ✓")
 

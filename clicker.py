@@ -89,16 +89,23 @@ def run_steps(driver: webdriver.Chrome, steps: list, timeout: int):
         return
 
     print(f"\n[Post-Login] รัน {len(steps)} ขั้นตอน")
-    for i, step in enumerate(steps, 1):
+    idx = 0
+    while idx < len(steps):
+        step = steps[idx]
         action = step.get("action", "").lower()
-        print(f"\n  [{i}/{len(steps)}] action: {action}")
+        print(f"\n  [{idx + 1}/{len(steps)}] action: {action}")
 
         if action == "check_file":
             path = step["file"]
             if not os.path.exists(path):
                 print(f"        ไม่พบไฟล์: {path}")
-                print("        ข้ามขั้นตอนที่เหลือทั้งหมด")
-                break
+                print("        ข้ามกลุ่มนี้ → ไปกลุ่มถัดไป")
+                idx += 1
+                while idx < len(steps) and steps[idx].get("action", "").lower() != "check_file":
+                    skipped = steps[idx].get("action", "")
+                    print(f"\n  [{idx + 1}/{len(steps)}] action: {skipped} — ข้าม")
+                    idx += 1
+                continue
             print(f"        พบไฟล์: {path} ✓")
 
         elif action == "click":
@@ -177,6 +184,8 @@ def run_steps(driver: webdriver.Chrome, steps: list, timeout: int):
                 f"รองรับ: check_file, click, type, navigate, wait, screenshot, assert_url, js, upload"
             )
 
+        idx += 1
+
 
 def run():
     print("=" * 50)
@@ -247,7 +256,7 @@ def run():
     finally:
         if not config.HEADLESS:
             print("\n(รอ 5 วินาที ก่อนปิด browser...)")
-            time.sleep(90)
+            time.sleep(5)
         driver.quit()
 
 

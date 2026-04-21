@@ -1,12 +1,12 @@
 # ============================================================
 #  Web Clicker — Configuration
-#  แก้ไขค่าต่างๆ ในไฟล์นี้ตามที่ต้องการ
+#  Edit values in this file to change behaviour.
 # ============================================================
 
 from datetime import datetime
 _today = datetime.now().strftime("%Y%m%d")
 
-# URL ของหน้าเว็บที่ต้องการเปิด
+# Target website URL
 URL = "https://stage.fundconnext.com/"
 
 # -------- Credentials --------
@@ -14,33 +14,33 @@ USERNAME = "uat_natthaphatw"
 PASSWORD = "Inw@1596321"
 
 # -------- Selectors --------
-# CSS selector ของ input username
+# CSS selector for the username input
 USERNAME_SELECTOR = {"by": "css", "value": "input[name='username']"}
 
-# CSS selector ของ input password
+# CSS selector for the password input
 PASSWORD_SELECTOR = {"by": "css", "value": "input[name='password']"}
 
-# CSS selector ของปุ่ม Login
+# CSS selector for the login/submit button
 BUTTON_SELECTOR = {"by": "css", "value": "button[type='submit']"}
 
-# โฟลเดอร์ที่เก็บไฟล์สำหรับอัพโหลด
+# Folder containing files to upload
 UPLOAD_DIR = r"C:\Users\click\Desktop"
 
-# -------- ตั้งค่า Browser --------
+# -------- Browser Settings --------
 
-# True = ไม่แสดงหน้าต่าง browser (headless)
-# False = แสดงหน้าต่าง browser ให้เห็น (headed)
+# True = run without a browser window (headless)
+# False = show the browser window (headed)
 HEADLESS = False
 
-# รอ element โหลดสูงสุดกี่วินาที (ก่อน timeout)
+# Maximum seconds to wait for an element before timeout
 WAIT_TIMEOUT = 10
 
-# รอหลังคลิกกี่วินาที (ให้ผลลัพธ์โหลด)
+# Seconds to pause after clicking login before running post-login steps
 WAIT_AFTER_CLICK = 3
 
 # -------- Upload Groups --------
-# แต่ละแถว: (ชื่อไฟล์ไม่มีวันที่และนามสกุล, file-input id, upload-button id)
-# เพิ่ม/ลบแถวเพื่อจัดการไฟล์ที่ต้องอัพโหลด
+# Each row: (filename without date and extension, file-input id, upload-button id)
+# Add or remove rows to manage which files are uploaded.
 _UPLOADS = [
     ("LHFUND_FUND_RULES",            "fund-rules-v4FileInput",            "fund-rules-v4UploadButton"),
     ("LHFUND_FUNDMAPPING",           "fund-mapping-v1FileInput",          "fund-mapping-v1UploadButton"),

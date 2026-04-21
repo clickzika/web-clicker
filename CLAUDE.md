@@ -112,6 +112,7 @@ Each step in `POST_LOGIN_STEPS` is a dict with an `"action"` key:
 | `wait` | `seconds` | Pauses for N seconds |
 | `screenshot` | `filename` | Saves a screenshot to `filename` |
 | `assert_url` | `contains` | Asserts current URL contains the given string, exits on failure |
+| `js` | `script` | Executes arbitrary JavaScript via `driver.execute_script(script)` |
 
 Example config:
 ```python
@@ -120,6 +121,8 @@ POST_LOGIN_STEPS = [
     {"action": "wait",       "seconds": 2},
     {"action": "screenshot", "filename": "dashboard.png"},
     {"action": "assert_url", "contains": "/dashboard"},
+    # bypass disabled Angular input + trigger change detection
+    {"action": "js", "script": "var el=document.getElementById('my-input'); el.removeAttribute('disabled'); el.value='/path/file.xlsx'; el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true}));"},
 ]
 ```
 

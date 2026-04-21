@@ -1,15 +1,11 @@
 {
   "project": "web-clicker",
-  "status": "IN_PROGRESS",
-  "gate": "Gate A4 — Feature Approval",
+  "status": "COMPLETED",
+  "gate": "Gate A4 — Done",
   "feature": "POST_LOGIN_STEPS",
-  "branch": "feature/1-post-login-steps",
   "github_issue": 1,
-  "autopilot_mode": true,
-  "autopilot_total_tasks": 2,
-  "autopilot_tasks_done": 0,
-  "last_completed": "Gate A3 approved, branch created",
-  "next_action": "implement config.py + clicker.py",
-  "files_modified": ["CLAUDE.md", "memory/progress.json"],
+  "github_pr": 2,
+  "last_completed": "PR #2 merged to main, issue #1 closed",
+  "next_action": "none — feature complete",
   "updated": "2026-04-21"
 }

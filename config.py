@@ -50,11 +50,7 @@ WAIT_AFTER_CLICK = 3
 POST_LOGIN_STEPS = [
     {"action": "navigate", "url": "https://stage.fundconnext.com/amcUpload/fundProfileUpload"},
     {"action": "wait",     "seconds": 3},
-    # วินิจฉัย: แสดง input ทั้งหมดที่มีในหน้า
-    {"action": "js", "script": "return Array.from(document.querySelectorAll('input')).map(el => el.id + '|' + el.type + '|' + el.className).join('\\n');"},
-    # ส่งไฟล์ผ่าน CDP DOM.setFileInputFiles
-    {"action": "upload",   "selector": {"by": "css", "value": "input[type='file']"}, "file": "C:\\Users\\click\\Desktop\\20260421_LHFUND_FUND_RULES.txt"},
-    {"action": "click",    "selector": {"by": "text", "value": "OK"}},
+    {"action": "upload",   "selector": {"by": "id", "value": "fund-rules-v4FileInput"}, "file": "C:\\Users\\click\\Desktop\\20260421_LHFUND_FUND_RULES.txt"},
     {"action": "wait",     "seconds": 2},
     {"action": "click",    "selector": {"by": "id", "value": "fund-rules-v4UploadButton"}},
 ]

@@ -152,10 +152,10 @@ def run_steps(driver: webdriver.Chrome, steps: list, timeout: int):
                 js_expr = f"document.querySelector('[{by_key}=\"{val}\"]')"
             result = driver.execute_cdp_cmd("Runtime.evaluate", {"expression": js_expr})
             obj_id = result["result"]["objectId"]
-            node = driver.execute_cdp_cmd("DOM.requestNode", {"objectId": obj_id})
+            # use objectId directly — nodeId goes stale when Angular re-renders
             driver.execute_cdp_cmd("DOM.setFileInputFiles", {
                 "files": [step["file"]],
-                "nodeId": node["nodeId"],
+                "objectId": obj_id,
             })
             print(f"        ส่งไฟล์แล้ว: {step['file']} ✓")
 

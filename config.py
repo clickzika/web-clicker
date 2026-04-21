@@ -56,7 +56,8 @@ WAIT_AFTER_CLICK = 3
 POST_LOGIN_STEPS = [
     {"action": "navigate", "url": "https://stage.fundconnext.com/amcUpload/fundProfileUpload"},
     {"action": "wait",     "seconds": 3},
-    {"action": "upload",   "selector": {"by": "id", "value": "fund-rules-v4FileInput"}, "file": rf"{UPLOAD_DIR}\{_today}_LHFUND_FUND_RULES.txt"},
+    {"action": "check_file", "file": rf"{UPLOAD_DIR}\{_today}_LHFUND_FUND_RULES.txt"},
+    {"action": "upload",     "selector": {"by": "id", "value": "fund-rules-v4FileInput"}, "file": rf"{UPLOAD_DIR}\{_today}_LHFUND_FUND_RULES.txt"},
     {"action": "wait",     "seconds": 2},
     {"action": "click",    "selector": {"by": "id", "value": "fund-rules-v4UploadButton"}},
 ]

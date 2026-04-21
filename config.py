@@ -60,4 +60,9 @@ POST_LOGIN_STEPS = [
     {"action": "upload",     "selector": {"by": "id", "value": "fund-rules-v4FileInput"}, "file": rf"{UPLOAD_DIR}\{_today}_LHFUND_FUND_RULES.txt"},
     {"action": "wait",     "seconds": 2},
     {"action": "click",    "selector": {"by": "id", "value": "fund-rules-v4UploadButton"}},
+
+    {"action": "check_file", "file": rf"{UPLOAD_DIR}\{_today}_LHFUND_FUNDMAPPING.txt"},
+    {"action": "upload",     "selector": {"by": "id", "value": "fund-mapping-v1FileInput"}, "file": rf"{UPLOAD_DIR}\{_today}_LHFUND_FUNDMAPPING.txt"},
+    {"action": "wait",     "seconds": 2},
+    {"action": "click",    "selector": {"by": "id", "value": "fund-mapping-v1UploadButton"}},
 ]

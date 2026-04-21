@@ -11,7 +11,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import TimeoutException
 
 import config
 
@@ -25,6 +25,11 @@ BY_MAP = {
     "class": By.CLASS_NAME,
     "tag":   By.TAG_NAME,
 }
+
+
+class SkipGroup(Exception):
+    """check_file raises this when file is missing — run_steps skips to the next group."""
+    pass
 
 
 def build_driver(headless: bool) -> webdriver.Chrome:
@@ -67,6 +72,19 @@ def resolve_locator(selector: dict) -> tuple:
         )
 
 
+def _to_css(selector: dict) -> str:
+    """แปลง selector dict เป็น CSS string สำหรับ CDP querySelector"""
+    by_key = selector["by"].lower()
+    val = selector["value"]
+    if by_key == "id":
+        return f"#{val}"
+    elif by_key == "css":
+        return val
+    elif by_key == "name":
+        return f"[name='{val}']"
+    return val
+
+
 def wait_and_find(driver: webdriver.Chrome, selector: dict, timeout: int):
     """รอจนกว่า element จะ clickable แล้วคืนค่า"""
     locator = resolve_locator(selector)
@@ -83,6 +101,96 @@ def wait_visible(driver: webdriver.Chrome, selector: dict, timeout: int):
     )
 
 
+# ── Action handlers ──────────────────────────────────────────
+
+def _do_check_file(driver, step, timeout):
+    path = step["file"]
+    if not os.path.exists(path):
+        print(f"        ไม่พบไฟล์: {path}")
+        print("        ข้ามกลุ่มนี้ → ไปกลุ่มถัดไป")
+        raise SkipGroup()
+    print(f"        พบไฟล์: {path} ✓")
+
+
+def _do_click(driver, step, timeout):
+    el = wait_and_find(driver, step["selector"], timeout)
+    print(f"        พบ element: <{el.tag_name}> text='{el.text.strip()}'")
+    el.click()
+    print("        คลิกแล้ว ✓")
+
+
+def _do_type(driver, step, timeout):
+    el = wait_visible(driver, step["selector"], timeout)
+    el.clear()
+    el.send_keys(step["text"])
+    print(f"        พิมพ์แล้ว: {step['text']}")
+
+
+def _do_navigate(driver, step, timeout):
+    driver.get(step["url"])
+    print(f"        เปิด: {step['url']}")
+    print(f"        ชื่อหน้า: {driver.title}")
+
+
+def _do_wait(driver, step, timeout):
+    secs = step["seconds"]
+    print(f"        รอ {secs} วินาที...")
+    time.sleep(secs)
+
+
+def _do_screenshot(driver, step, timeout):
+    driver.save_screenshot(step["filename"])
+    print(f"        บันทึกภาพ: {step['filename']} ✓")
+
+
+def _do_assert_url(driver, step, timeout):
+    contains = step["contains"]
+    current = driver.current_url
+    if contains not in current:
+        print(f"        [ERROR] assert_url ล้มเหลว")
+        print(f"                คาดว่ามี: '{contains}'")
+        print(f"                URL ปัจจุบัน: {current}")
+        sys.exit(1)
+    print(f"        URL มี '{contains}' ✓")
+
+
+def _do_js(driver, step, timeout):
+    result = driver.execute_script(step["script"])
+    print("        รัน JS แล้ว ✓")
+    if result is not None:
+        print(f"        ผลลัพธ์: {result}")
+
+
+def _do_upload(driver, step, timeout):
+    css_sel = _to_css(step["selector"])
+    doc = driver.execute_cdp_cmd("DOM.getDocument", {})
+    result = driver.execute_cdp_cmd("DOM.querySelector", {
+        "nodeId": doc["root"]["nodeId"],
+        "selector": css_sel,
+    })
+    node_id = result["nodeId"]
+    if node_id == 0:
+        raise ValueError(f"upload: ไม่พบ element '{css_sel}' ใน DOM")
+    driver.execute_cdp_cmd("DOM.setFileInputFiles", {
+        "files": [step["file"]],
+        "nodeId": node_id,
+    })
+    print(f"        ส่งไฟล์แล้ว: {step['file']} ✓")
+
+
+HANDLERS = {
+    "check_file": _do_check_file,
+    "click":      _do_click,
+    "type":       _do_type,
+    "navigate":   _do_navigate,
+    "wait":       _do_wait,
+    "screenshot": _do_screenshot,
+    "assert_url": _do_assert_url,
+    "js":         _do_js,
+    "upload":     _do_upload,
+}
+
+
 def run_steps(driver: webdriver.Chrome, steps: list, timeout: int):
     """รัน POST_LOGIN_STEPS ตามลำดับหลัง login สำเร็จ"""
     if not steps:
@@ -95,94 +203,20 @@ def run_steps(driver: webdriver.Chrome, steps: list, timeout: int):
         action = step.get("action", "").lower()
         print(f"\n  [{idx + 1}/{len(steps)}] action: {action}")
 
-        if action == "check_file":
-            path = step["file"]
-            if not os.path.exists(path):
-                print(f"        ไม่พบไฟล์: {path}")
-                print("        ข้ามกลุ่มนี้ → ไปกลุ่มถัดไป")
-                idx += 1
-                while idx < len(steps) and steps[idx].get("action", "").lower() != "check_file":
-                    skipped = steps[idx].get("action", "")
-                    print(f"\n  [{idx + 1}/{len(steps)}] action: {skipped} — ข้าม")
-                    idx += 1
-                continue
-            print(f"        พบไฟล์: {path} ✓")
-
-        elif action == "click":
-            el = wait_and_find(driver, step["selector"], timeout)
-            print(f"        พบ element: <{el.tag_name}> text='{el.text.strip()}'")
-            el.click()
-            print("        คลิกแล้ว ✓")
-
-        elif action == "type":
-            el = wait_visible(driver, step["selector"], timeout)
-            el.clear()
-            el.send_keys(step["text"])
-            print(f"        พิมพ์แล้ว: {step['text']}")
-
-        elif action == "navigate":
-            url = step["url"]
-            driver.get(url)
-            print(f"        เปิด: {url}")
-            print(f"        ชื่อหน้า: {driver.title}")
-
-        elif action == "wait":
-            secs = step["seconds"]
-            print(f"        รอ {secs} วินาที...")
-            time.sleep(secs)
-
-        elif action == "screenshot":
-            filename = step["filename"]
-            driver.save_screenshot(filename)
-            print(f"        บันทึกภาพ: {filename} ✓")
-
-        elif action == "assert_url":
-            contains = step["contains"]
-            current = driver.current_url
-            if contains not in current:
-                print(f"        [ERROR] assert_url ล้มเหลว")
-                print(f"                คาดว่ามี: '{contains}'")
-                print(f"                URL ปัจจุบัน: {current}")
-                sys.exit(1)
-            print(f"        URL มี '{contains}' ✓")
-
-        elif action == "js":
-            script = step["script"]
-            result = driver.execute_script(script)
-            print(f"        รัน JS แล้ว ✓")
-            if result is not None:
-                print(f"        ผลลัพธ์: {result}")
-
-        elif action == "upload":
-            by_key = step["selector"]["by"].lower()
-            val = step["selector"]["value"]
-            if by_key == "id":
-                css_sel = f"#{val}"
-            elif by_key == "css":
-                css_sel = val
-            elif by_key == "name":
-                css_sel = f"[name='{val}']"
-            else:
-                css_sel = val
-            doc = driver.execute_cdp_cmd("DOM.getDocument", {})
-            result = driver.execute_cdp_cmd("DOM.querySelector", {
-                "nodeId": doc["root"]["nodeId"],
-                "selector": css_sel,
-            })
-            node_id = result["nodeId"]
-            if node_id == 0:
-                raise ValueError(f"upload: ไม่พบ element '{css_sel}' ใน DOM")
-            driver.execute_cdp_cmd("DOM.setFileInputFiles", {
-                "files": [step["file"]],
-                "nodeId": node_id,
-            })
-            print(f"        ส่งไฟล์แล้ว: {step['file']} ✓")
-
-        else:
+        handler = HANDLERS.get(action)
+        if handler is None:
             raise ValueError(
-                f"ไม่รู้จัก action='{action}'. "
-                f"รองรับ: check_file, click, type, navigate, wait, screenshot, assert_url, js, upload"
+                f"ไม่รู้จัก action='{action}'. รองรับ: {', '.join(HANDLERS)}"
             )
+
+        try:
+            handler(driver, step, timeout)
+        except SkipGroup:
+            idx += 1
+            while idx < len(steps) and steps[idx].get("action", "").lower() != "check_file":
+                print(f"\n  [{idx + 1}/{len(steps)}] action: {steps[idx].get('action')} — ข้าม")
+                idx += 1
+            continue
 
         idx += 1
 
@@ -207,35 +241,27 @@ def run():
 
         # ── Step 2: กรอก Username ────────────────────────────
         print(f"\n[2/4] กรอก Username")
-        username_field = wait_visible(
-            driver, config.USERNAME_SELECTOR, config.WAIT_TIMEOUT
-        )
+        username_field = wait_visible(driver, config.USERNAME_SELECTOR, config.WAIT_TIMEOUT)
         username_field.clear()
         username_field.send_keys(config.USERNAME)
         print(f"      กรอกแล้ว: {config.USERNAME}")
 
         # ── Step 3: กรอก Password ────────────────────────────
         print(f"\n[3/4] กรอก Password")
-        password_field = wait_visible(
-            driver, config.PASSWORD_SELECTOR, config.WAIT_TIMEOUT
-        )
+        password_field = wait_visible(driver, config.PASSWORD_SELECTOR, config.WAIT_TIMEOUT)
         password_field.clear()
         password_field.send_keys(config.PASSWORD)
         print(f"      กรอกแล้ว: {'*' * len(config.PASSWORD)}")
 
         # ── Step 4: คลิกปุ่ม ─────────────────────────────────
         print(f"\n[4/4] คลิกปุ่ม Login")
-        submit_btn = wait_and_find(
-            driver, config.BUTTON_SELECTOR, config.WAIT_TIMEOUT
-        )
+        submit_btn = wait_and_find(driver, config.BUTTON_SELECTOR, config.WAIT_TIMEOUT)
         print(f"      พบปุ่ม: <{submit_btn.tag_name}> text='{submit_btn.text.strip()}'")
         submit_btn.click()
         print("      คลิกแล้ว ✓")
 
-        # ── รอผลลัพธ์ ─────────────────────────────────────────
         time.sleep(config.WAIT_AFTER_CLICK)
 
-        # ── Post-Login Steps ──────────────────────────────────
         run_steps(driver, config.POST_LOGIN_STEPS, config.WAIT_TIMEOUT)
 
         print(f"\n[เสร็จสิ้น]")
@@ -246,9 +272,6 @@ def run():
         print(f"\n[ERROR] Timeout — ไม่พบ element ภายใน {config.WAIT_TIMEOUT} วินาที")
         print(f"        รายละเอียด: {e.msg}")
         print("        ลองเปิดด้วย --headed แล้วดูว่า selector ถูกต้องไหม")
-        sys.exit(1)
-    except NoSuchElementException as e:
-        print(f"\n[ERROR] ไม่พบ element: {e.msg}")
         sys.exit(1)
     except Exception as e:
         print(f"\n[ERROR] {type(e).__name__}: {e}")

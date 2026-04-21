@@ -38,31 +38,35 @@ WAIT_TIMEOUT = 10
 # รอหลังคลิกกี่วินาที (ให้ผลลัพธ์โหลด)
 WAIT_AFTER_CLICK = 3
 
+# -------- Upload Groups --------
+# แต่ละแถว: (ชื่อไฟล์ไม่มีวันที่และนามสกุล, file-input id, upload-button id)
+# เพิ่ม/ลบแถวเพื่อจัดการไฟล์ที่ต้องอัพโหลด
+_UPLOADS = [
+    ("LHFUND_FUND_RULES",            "fund-rules-v4FileInput",            "fund-rules-v4UploadButton"),
+    ("LHFUND_FUNDMAPPING",           "fund-mapping-v1FileInput",          "fund-mapping-v1UploadButton"),
+    ("LHFUND_FUND_SWITCHING_V1",     "fund-switching-matrix-v1FileInput", "fund-switching-matrix-v1UploadButton"),
+    ("LHFUND_FUND_SWITCHING_V2",     "fund-switching-matrix-v2FileInput", "fund-switching-matrix-v2UploadButton"),
+    ("LHFUND_FUND_CALENDAR",         "fund-calendar-v1FileInput",         "fund-calendar-v1UploadButton"),
+    ("LHFUND_TRADE_CALENDAR",        "trade-calendar-v2FileInput",        "trade-calendar-v2UploadButton"),
+    ("LHFUND_FUND_FEE",              "fund-feeFileInput",                 "fund-feeUploadButton"),
+    # ("LHFUND_FILE8",               "file8FileInput",                    "file8UploadButton"),
+    # ("LHFUND_FILE9",               "file9FileInput",                    "file9UploadButton"),
+    # ("LHFUND_FILE10",              "file10FileInput",                   "file10UploadButton"),
+]
+
+_groups = []
+for _fname, _finput, _fbtn in _UPLOADS:
+    _groups += [
+        {"action": "check_file", "file": rf"{UPLOAD_DIR}\{_today}_{_fname}.txt"},
+        {"action": "upload",     "selector": {"by": "id", "value": _finput},
+                                 "file": rf"{UPLOAD_DIR}\{_today}_{_fname}.txt"},
+        {"action": "wait",       "seconds": 2},
+        {"action": "click",      "selector": {"by": "id", "value": _fbtn}},
+    ]
+
 # -------- Post-Login Steps --------
-# ลำดับ action ที่ต้องการให้รันหลัง login สำเร็จ
-# ตั้งเป็น [] เพื่อข้ามขั้นตอนนี้
-#
-# action ที่รองรับ:
-#   click       — คลิก element (ต้องมี "selector")
-#   type        — พิมพ์ข้อความ (ต้องมี "selector" และ "text")
-#   navigate    — เปิด URL ใหม่ (ต้องมี "url")
-#   wait        — หน่วงเวลา (ต้องมี "seconds")
-#   screenshot  — บันทึกภาพหน้าจอ (ต้องมี "filename")
-#   assert_url  — ตรวจสอบว่า URL ปัจจุบันมีข้อความที่กำหนด (ต้องมี "contains")
-#   js          — รัน JavaScript ผ่าน driver.execute_script() (ต้องมี "script")
-#
-
-
 POST_LOGIN_STEPS = [
     {"action": "navigate", "url": "https://stage.fundconnext.com/amcUpload/fundProfileUpload"},
     {"action": "wait",     "seconds": 3},
-    {"action": "check_file", "file": rf"{UPLOAD_DIR}\{_today}_LHFUND_FUND_RULES.txt"},
-    {"action": "upload",     "selector": {"by": "id", "value": "fund-rules-v4FileInput"}, "file": rf"{UPLOAD_DIR}\{_today}_LHFUND_FUND_RULES.txt"},
-    {"action": "wait",     "seconds": 2},
-    {"action": "click",    "selector": {"by": "id", "value": "fund-rules-v4UploadButton"}},
-
-    {"action": "check_file", "file": rf"{UPLOAD_DIR}\{_today}_LHFUND_FUNDMAPPING.txt"},
-    {"action": "upload",     "selector": {"by": "id", "value": "fund-mapping-v1FileInput"}, "file": rf"{UPLOAD_DIR}\{_today}_LHFUND_FUNDMAPPING.txt"},
-    {"action": "wait",     "seconds": 2},
-    {"action": "click",    "selector": {"by": "id", "value": "fund-mapping-v1UploadButton"}},
+    *_groups,
 ]

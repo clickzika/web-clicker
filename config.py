@@ -47,30 +47,21 @@ WAIT_AFTER_CLICK = 3
 #
 # ตัวอย่าง:
 # POST_LOGIN_STEPS = [
-#     {"action": "wait",       "seconds": 2},
-#     {"action": "assert_url", "contains": "/dashboard"},
-#     {"action": "screenshot", "filename": "after_login.png"},
-#     {"action": "click",      "selector": {"by": "css", "value": "a.reports-link"}},
-#     {"action": "wait",       "seconds": 1},
-#     {"action": "type",       "selector": {"by": "id", "value": "search"}, "text": "hello"},
-#     {"action": "navigate",   "url": "https://stage.fundconnext.com/settings"},
-#     # ตัวอย่าง: bypass Angular disabled input + trigger change detection
-#     {"action": "js", "script": "var el=document.getElementById('fund-rules-v4TextInput'); el.removeAttribute('disabled'); el.value='/path/to/file.xlsx'; el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true}));"},
-# ]
+    {"action": "navigate", "url": "https://stage.fundconnext.com/amcUpload/fundProfileUpload"},
+    {"action": "wait",     "seconds": 10},
+    # ส่งไฟล์ผ่าน send_keys() เพื่อให้ Angular FormControl รับรู้และ enable ปุ่ม SUBMIT
+    {"action": "upload",   "selector": {"by": "id", "value": "fund-rules-v4TextInput"}, "file": "D:/Work/web-clicker/requirements.txt"},
+    {"action": "click",    "selector": {"by": "text", "value": "OK"}},
+    {"action": "wait",     "seconds": 2},
+    {"action": "click",    "selector": {"by": "id", "value": "fund-rules-v4UploadButton"}},
+]
 
 POST_LOGIN_STEPS = [
-{"action": "navigate",   "url": "https://stage.fundconnext.com/amcUpload/fundProfileUpload"},
-{"action": "wait",       "seconds": 10},
-{"action": "js", "script": """
-          var el = document.getElementById('fund-rules-v4TextInput');
-          el.removeAttribute('disabled');                                                                                                                                                                          
-          el.value = 'D:/Work/web-clicker/requirements.txt';
-          el.dispatchEvent(new Event('input',  {bubbles: true}));                                                                                                                                                  
-          el.dispatchEvent(new Event('change', {bubbles: true}));
-      """},                                                                                                                                                                                                        
-      # Then click OK
-      {"action": "click", "selector": {"by": "text", "value": "OK"}},
-      {"action": "wait", "seconds": 2},
-      # Force-enable disabled SUBMIT button and click it
-      {"action": "js", "script": "var btn = document.getElementById('fund-rules-v4UploadButton'); btn.removeAttribute('disabled'); btn.click();"},
+    {"action": "navigate", "url": "https://stage.fundconnext.com/amcUpload/fundProfileUpload"},
+    {"action": "wait",     "seconds": 10},
+    # ส่งไฟล์ผ่าน send_keys() เพื่อให้ Angular FormControl รับรู้และ enable ปุ่ม SUBMIT
+    {"action": "upload",   "selector": {"by": "id", "value": "fund-rules-v4TextInput"}, "file": "D:/Work/web-clicker/requirements.txt"},
+    {"action": "click",    "selector": {"by": "text", "value": "OK"}},
+    {"action": "wait",     "seconds": 2},
+    {"action": "click",    "selector": {"by": "id", "value": "fund-rules-v4UploadButton"}},
 ]

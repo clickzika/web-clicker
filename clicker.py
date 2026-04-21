@@ -137,10 +137,15 @@ def run_steps(driver: webdriver.Chrome, steps: list, timeout: int):
             if result is not None:
                 print(f"        ผลลัพธ์: {result}")
 
+        elif action == "upload":
+            el = wait_visible(driver, step["selector"], timeout)
+            el.send_keys(step["file"])
+            print(f"        ส่งไฟล์แล้ว: {step['file']} ✓")
+
         else:
             raise ValueError(
                 f"ไม่รู้จัก action='{action}'. "
-                f"รองรับ: click, type, navigate, wait, screenshot, assert_url, js"
+                f"รองรับ: click, type, navigate, wait, screenshot, assert_url, js, upload"
             )
 
 

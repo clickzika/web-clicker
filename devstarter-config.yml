@@ -1,0 +1,42 @@
+# devstarter-config.yml — DevStarter Project Configuration
+# Single source of truth for all project settings.
+# Secrets (credentials, API keys) go in .env — never here.
+
+project:
+  name: web-clicker
+  description: "Python CLI automation tool that opens a browser, fills in login credentials, and clicks the submit button on a target web page."
+  version: "1.0.0"
+  status: active
+  type: app
+  language: python
+
+vcs:
+  type: github
+  repo: "clickzika/web-clicker"
+  branch_strategy: simple
+  main_branch: main
+  dev_branch: main
+  secondary_1: none
+  secondary_2: none
+
+pm:
+  type: none
+
+ci:
+  type: none
+
+secrets:
+  backend: env-file
+
+ai:
+  provider: claude
+  model: claude-sonnet-4-6
+
+team:
+  skill_level: intermediate
+  size: solo
+
+stack:
+  frontend: none
+  backend: python               # Selenium / Python CLI
+  database: none

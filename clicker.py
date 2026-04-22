@@ -171,10 +171,35 @@ def _do_upload(driver, step, timeout):
     node_id = result["nodeId"]
     if node_id == 0:
         raise ValueError(f"upload: element '{css_sel}' not found in DOM")
-    driver.execute_cdp_cmd("DOM.setFileInputFiles", {
-        "files": [step["file"]],
-        "nodeId": node_id,
-    })
+
+    try:
+        driver.execute_cdp_cmd("DOM.setFileInputFiles", {
+            "files": [step["file"]],
+            "nodeId": node_id,
+        })
+        print(f"        File sent: {step['file']} ✓")
+        return
+    except Exception:
+        pass
+
+    # Target is not <input type="file"> — walk up the DOM to find the nearest one
+    file_el = driver.execute_script("""
+        var anchor = document.querySelector(arguments[0]);
+        var node = anchor ? anchor.parentElement : document.body;
+        while (node && node !== document.documentElement) {
+            var fi = node.querySelector('input[type="file"]');
+            if (fi) return fi;
+            node = node.parentElement;
+        }
+        return null;
+    """, css_sel)
+    if file_el is None:
+        raise ValueError(f"upload: no input[type='file'] found near '{css_sel}'")
+    driver.execute_script(
+        "arguments[0].style.cssText='display:block!important;visibility:visible!important;opacity:1!important;'",
+        file_el,
+    )
+    file_el.send_keys(step["file"])
     print(f"        File sent: {step['file']} ✓")
 
 

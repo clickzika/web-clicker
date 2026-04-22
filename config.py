@@ -24,7 +24,7 @@ PASSWORD_SELECTOR = {"by": "css", "value": "input[name='password']"}
 BUTTON_SELECTOR = {"by": "css", "value": "button[type='submit']"}
 
 # Folder containing files to upload
-UPLOAD_DIR = r"C:\Users\click\Desktop"
+UPLOAD_DIR = r"C:\Temp\V4.0"
 
 # -------- Browser Settings --------
 
@@ -58,12 +58,12 @@ for _fname, _finput, _fbtn in _UPLOADS:
                                  "file": rf"{UPLOAD_DIR}\{_today}_{_fname}.txt"},
         {"action": "wait",       "seconds": 2},
         {"action": "click",      "selector": {"by": "id", "value": _fbtn}},
-        {"action": "wait",       "seconds": 5},
+        {"action": "wait",       "seconds": 10},
     ]
 
 # -------- Post-Login Steps --------
 POST_LOGIN_STEPS = [
     {"action": "navigate", "url": "https://stage.fundconnext.com/amcUpload/fundProfileUpload"},
-    {"action": "wait",     "seconds": 3},
+    {"action": "wait",     "seconds": 10},
     *_groups,
 ]
